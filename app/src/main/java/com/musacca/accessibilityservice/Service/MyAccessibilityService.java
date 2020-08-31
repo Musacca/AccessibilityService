@@ -12,10 +12,6 @@ import android.view.accessibility.AccessibilityEvent;
 
 import com.musacca.accessibilityservice.controllers.WindowPositionController;
 
-/**
- * Created by sotsys-014 on 4/10/16.
- */
-
 public class MyAccessibilityService extends AccessibilityService {
     private final AccessibilityServiceInfo info = new AccessibilityServiceInfo();
     private static final String TAG = "MyAccessibilityService";
@@ -32,8 +28,8 @@ public class MyAccessibilityService extends AccessibilityService {
 //        Log.d(TAG, "onAccessibilityEvent");
         final String sourcePackageName = (String) accessibilityEvent.getPackageName();
         currntApplicationPackage = sourcePackageName;
-//        Log.d(TAG, "sourcePackageName:" + sourcePackageName);
-        Log.d(TAG, "accessibilityEvent.getEventType():" + accessibilityEvent.getEventType());
+        Log.d(TAG, "sourcePackageName:" + sourcePackageName);
+        //Log.d(TAG, "accessibilityEvent.getEventType():" + accessibilityEvent.getEventType());
 
         windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
 
@@ -42,6 +38,9 @@ public class MyAccessibilityService extends AccessibilityService {
         }
         if (accessibilityEvent.getEventType() == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) {
             Log.d(TAGEVENTS, "TYPE_WINDOW_STATE_CHANGED");
+        }
+        if (accessibilityEvent.getEventType() == AccessibilityEvent.TYPE_VIEW_SCROLLED) {
+            Log.d(TAGEVENTS, "TYPE_VIEW_SCROLLED");
         }
         if (accessibilityEvent.getEventType() == AccessibilityEvent.CONTENT_CHANGE_TYPE_SUBTREE) {
             Log.d(TAGEVENTS, "CONTENT_CHANGE_TYPE_SUBTREE");
