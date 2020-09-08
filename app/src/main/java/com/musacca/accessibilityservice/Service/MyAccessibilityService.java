@@ -3,14 +3,17 @@ package com.musacca.accessibilityservice.Service;
 import android.accessibilityservice.AccessibilityService;
 import android.accessibilityservice.AccessibilityServiceInfo;
 import android.annotation.SuppressLint;
-import android.content.Context;
-import android.provider.Settings;
-import android.text.TextUtils;
+import android.os.Build;
 import android.util.Log;
 import android.view.WindowManager;
 import android.view.accessibility.AccessibilityEvent;
 
+import androidx.annotation.RequiresApi;
+
+import com.musacca.accessibilityservice.MainActivity;
 import com.musacca.accessibilityservice.controllers.WindowPositionController;
+
+import static com.musacca.accessibilityservice.MainActivity.writer;
 
 public class MyAccessibilityService extends AccessibilityService {
     private final AccessibilityServiceInfo info = new AccessibilityServiceInfo();
@@ -22,75 +25,116 @@ public class MyAccessibilityService extends AccessibilityService {
     private WindowManager windowManager;
     private boolean showWindow = false;
 
+    @Override
+    public void onCreate() {
+        super.onCreate();
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.O)
     @SuppressLint("WrongConstant")
     @Override
     public void onAccessibilityEvent(AccessibilityEvent accessibilityEvent) {
 //        Log.d(TAG, "onAccessibilityEvent");
-        final String sourcePackageName = (String) accessibilityEvent.getPackageName();
-        currntApplicationPackage = sourcePackageName;
-        Log.d(TAG, "sourcePackageName:" + sourcePackageName);
-        //Log.d(TAG, "accessibilityEvent.getEventType():" + accessibilityEvent.getEventType());
+        if (MainActivity.isAudioRecording) {
+            final String sourcePackageName = (String) accessibilityEvent.getPackageName();
+            //Log.d(TAG, "accessibilityEvent.getEventType():" + accessibilityEvent.getEventType());
 
-        windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
 
-        if (accessibilityEvent.getEventType() == AccessibilityEvent.CONTENT_CHANGE_TYPE_CONTENT_DESCRIPTION) {
-            Log.d(TAGEVENTS, "CONTENT_CHANGE_TYPE_CONTENT_DESCRIPTION");
-        }
-        if (accessibilityEvent.getEventType() == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) {
-            Log.d(TAGEVENTS, "TYPE_WINDOW_STATE_CHANGED");
-        }
-        if (accessibilityEvent.getEventType() == AccessibilityEvent.TYPE_VIEW_SCROLLED) {
-            Log.d(TAGEVENTS, "TYPE_VIEW_SCROLLED");
-        }
-        if (accessibilityEvent.getEventType() == AccessibilityEvent.CONTENT_CHANGE_TYPE_SUBTREE) {
-            Log.d(TAGEVENTS, "CONTENT_CHANGE_TYPE_SUBTREE");
-        }
-        if (accessibilityEvent.getEventType() == AccessibilityEvent.CONTENT_CHANGE_TYPE_TEXT) {
-            Log.d(TAGEVENTS, "CONTENT_CHANGE_TYPE_TEXT");
-        }
-        if (accessibilityEvent.getEventType() == AccessibilityEvent.INVALID_POSITION) {
-            Log.d(TAGEVENTS, "INVALID_POSITION");
-        }
-        if (accessibilityEvent.getEventType() == AccessibilityEvent.CONTENT_CHANGE_TYPE_UNDEFINED) {
-            Log.d(TAGEVENTS, "CONTENT_CHANGE_TYPE_UNDEFINED");
-        }
-        if (accessibilityEvent.getEventType() == AccessibilityEvent.TYPE_ANNOUNCEMENT) {
-            Log.d(TAGEVENTS, "TYPE_ANNOUNCEMENT");
-        }
-        if (accessibilityEvent.getEventType() == AccessibilityEvent.TYPE_ASSIST_READING_CONTEXT) {
-            Log.d(TAGEVENTS, "TYPE_ASSIST_READING_CONTEXT");
-        }
-        if (accessibilityEvent.getEventType() == AccessibilityEvent.TYPE_GESTURE_DETECTION_END) {
-            Log.d(TAGEVENTS, "TYPE_GESTURE_DETECTION_END");
-        }
-        if (accessibilityEvent.getEventType() == AccessibilityEvent.TYPE_VIEW_CLICKED) {
-            Log.d(TAGEVENTS, "TYPE_VIEW_CLICKED");
-        }
-        if (accessibilityEvent.getEventType() == AccessibilityEvent.TYPE_TOUCH_EXPLORATION_GESTURE_START) {
-            Log.d(TAGEVENTS, "TYPE_TOUCH_EXPLORATION_GESTURE_START");
-        }
-        if (accessibilityEvent.getEventType() == AccessibilityEvent.TYPE_GESTURE_DETECTION_START) {
-            Log.d(TAGEVENTS, "TYPE_GESTURE_DETECTION_START");
-        }
-        if (accessibilityEvent.getEventType() == AccessibilityEvent.TYPE_VIEW_ACCESSIBILITY_FOCUS_CLEARED) {
-            Log.d(TAGEVENTS, "TYPE_VIEW_ACCESSIBILITY_FOCUS_CLEARED");
-        }
-        if (accessibilityEvent.getEventType() == AccessibilityEvent.TYPE_VIEW_ACCESSIBILITY_FOCUSED) {
-            Log.d(TAGEVENTS, "TYPE_VIEW_ACCESSIBILITY_FOCUSED");
-        }
-        if (accessibilityEvent.getEventType() == AccessibilityEvent.TYPE_WINDOWS_CHANGED) {
-            Log.d(TAGEVENTS, "TYPE_WINDOWS_CHANGED");
-        }
+            windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
 
-        if (accessibilityEvent.getPackageName() == null || !(accessibilityEvent.getPackageName().equals("com.bsb.hike") || !(accessibilityEvent.getPackageName().equals("com.whatsapp") || accessibilityEvent.getPackageName().equals("com.facebook.orca") || accessibilityEvent.getPackageName().equals("com.twitter.android") || accessibilityEvent.getPackageName().equals("com.facebook.katana") || accessibilityEvent.getPackageName().equals("com.facebook.lite"))))
-            showWindow = false;
+            if (accessibilityEvent.getEventType() == AccessibilityEvent.CONTENT_CHANGE_TYPE_CONTENT_DESCRIPTION) {
+                writer.writeNext(new String[]{java.time.Clock.systemUTC().instant() + "", sourcePackageName, "CONTENT_CHANGE_TYPE_CONTENT_DESCRIPTION", accessibilityEvent.getEventType() + ""});
 
-        if (accessibilityEvent.getEventType() == AccessibilityEvent.TYPE_VIEW_TEXT_CHANGED) {
-            Log.d(TAGEVENTS, "TYPE_VIEW_TEXT_CHANGED");
-            if (windowController == null)
-                windowController = new WindowPositionController(windowManager, getApplicationContext());
-            showWindow = true;
-            windowController.notifyDatasetChanged(accessibilityEvent.getText().toString(), currntApplicationPackage);
+                Log.d(TAGEVENTS, "CONTENT_CHANGE_TYPE_CONTENT_DESCRIPTION");
+            }
+            if (accessibilityEvent.getEventType() == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) {
+                writer.writeNext(new String[]{java.time.Clock.systemUTC().instant() + "", sourcePackageName, "TYPE_WINDOW_STATE_CHANGED", accessibilityEvent.getEventType() + ""});
+
+                Log.d(TAGEVENTS, "TYPE_WINDOW_STATE_CHANGED");
+            }
+            if (accessibilityEvent.getEventType() == AccessibilityEvent.TYPE_VIEW_SCROLLED) {
+                writer.writeNext(new String[]{java.time.Clock.systemUTC().instant() + "", sourcePackageName, "TYPE_VIEW_SCROLLED", accessibilityEvent.getEventType() + ""});
+
+                Log.d(TAGEVENTS, "TYPE_VIEW_SCROLLED");
+            }
+            if (accessibilityEvent.getEventType() == AccessibilityEvent.CONTENT_CHANGE_TYPE_SUBTREE) {
+                writer.writeNext(new String[]{java.time.Clock.systemUTC().instant() + "", sourcePackageName, "CONTENT_CHANGE_TYPE_SUBTREE", accessibilityEvent.getEventType() + ""});
+
+                Log.d(TAGEVENTS, "CONTENT_CHANGE_TYPE_SUBTREE");
+            }
+            if (accessibilityEvent.getEventType() == AccessibilityEvent.CONTENT_CHANGE_TYPE_TEXT) {
+                writer.writeNext(new String[]{java.time.Clock.systemUTC().instant() + "", sourcePackageName, "CONTENT_CHANGE_TYPE_TEXT", accessibilityEvent.getEventType() + ""});
+
+                Log.d(TAGEVENTS, "CONTENT_CHANGE_TYPE_TEXT");
+            }
+            if (accessibilityEvent.getEventType() == AccessibilityEvent.INVALID_POSITION) {
+                writer.writeNext(new String[]{java.time.Clock.systemUTC().instant() + "", sourcePackageName, "INVALID_POSITION", accessibilityEvent.getEventType() + ""});
+
+                Log.d(TAGEVENTS, "INVALID_POSITION");
+            }
+            if (accessibilityEvent.getEventType() == AccessibilityEvent.CONTENT_CHANGE_TYPE_UNDEFINED) {
+                writer.writeNext(new String[]{java.time.Clock.systemUTC().instant() + "", sourcePackageName, "CONTENT_CHANGE_TYPE_UNDEFINED", accessibilityEvent.getEventType() + ""});
+
+                Log.d(TAGEVENTS, "CONTENT_CHANGE_TYPE_UNDEFINED");
+            }
+            if (accessibilityEvent.getEventType() == AccessibilityEvent.TYPE_ANNOUNCEMENT) {
+                writer.writeNext(new String[]{java.time.Clock.systemUTC().instant() + "", sourcePackageName, "TYPE_ANNOUNCEMENT", accessibilityEvent.getEventType() + ""});
+
+                Log.d(TAGEVENTS, "TYPE_ANNOUNCEMENT");
+            }
+            if (accessibilityEvent.getEventType() == AccessibilityEvent.TYPE_ASSIST_READING_CONTEXT) {
+                writer.writeNext(new String[]{java.time.Clock.systemUTC().instant() + "", sourcePackageName, "TYPE_ASSIST_READING_CONTEXT", accessibilityEvent.getEventType() + ""});
+
+                Log.d(TAGEVENTS, "TYPE_ASSIST_READING_CONTEXT");
+            }
+            if (accessibilityEvent.getEventType() == AccessibilityEvent.TYPE_GESTURE_DETECTION_END) {
+                writer.writeNext(new String[]{java.time.Clock.systemUTC().instant() + "", sourcePackageName, "TYPE_GESTURE_DETECTION_END", accessibilityEvent.getEventType() + ""});
+
+                Log.d(TAGEVENTS, "TYPE_GESTURE_DETECTION_END");
+            }
+            if (accessibilityEvent.getEventType() == AccessibilityEvent.TYPE_VIEW_CLICKED) {
+                writer.writeNext(new String[]{java.time.Clock.systemUTC().instant() + "", sourcePackageName, "TYPE_VIEW_CLICKED", accessibilityEvent.getEventType() + ""});
+
+                Log.d(TAGEVENTS, "TYPE_VIEW_CLICKED");
+            }
+            if (accessibilityEvent.getEventType() == AccessibilityEvent.TYPE_TOUCH_EXPLORATION_GESTURE_START) {
+                writer.writeNext(new String[]{java.time.Clock.systemUTC().instant() + "", sourcePackageName, "TYPE_TOUCH_EXPLORATION_GESTURE_START", accessibilityEvent.getEventType() + ""});
+
+                Log.d(TAGEVENTS, "TYPE_TOUCH_EXPLORATION_GESTURE_START");
+            }
+            if (accessibilityEvent.getEventType() == AccessibilityEvent.TYPE_GESTURE_DETECTION_START) {
+                writer.writeNext(new String[]{java.time.Clock.systemUTC().instant() + "", sourcePackageName, "TYPE_GESTURE_DETECTION_START", accessibilityEvent.getEventType() + ""});
+
+                Log.d(TAGEVENTS, "TYPE_GESTURE_DETECTION_START");
+            }
+            if (accessibilityEvent.getEventType() == AccessibilityEvent.TYPE_VIEW_ACCESSIBILITY_FOCUS_CLEARED) {
+                writer.writeNext(new String[]{java.time.Clock.systemUTC().instant() + "", sourcePackageName, "TYPE_VIEW_ACCESSIBILITY_FOCUS_CLEARED", accessibilityEvent.getEventType() + ""});
+
+                Log.d(TAGEVENTS, "TYPE_VIEW_ACCESSIBILITY_FOCUS_CLEARED");
+            }
+            if (accessibilityEvent.getEventType() == AccessibilityEvent.TYPE_VIEW_ACCESSIBILITY_FOCUSED) {
+                writer.writeNext(new String[]{java.time.Clock.systemUTC().instant() + "", sourcePackageName, "TYPE_VIEW_ACCESSIBILITY_FOCUSED", accessibilityEvent.getEventType() + ""});
+
+                Log.d(TAGEVENTS, "TYPE_VIEW_ACCESSIBILITY_FOCUSED");
+            }
+            if (accessibilityEvent.getEventType() == AccessibilityEvent.TYPE_WINDOWS_CHANGED) {
+                writer.writeNext(new String[]{java.time.Clock.systemUTC().instant() + "", sourcePackageName, "TYPE_WINDOWS_CHANGED", accessibilityEvent.getEventType() + ""});
+
+                Log.d(TAGEVENTS, "TYPE_WINDOWS_CHANGED");
+            }
+
+            if (accessibilityEvent.getPackageName() == null || !(accessibilityEvent.getPackageName().equals("com.bsb.hike") || !(accessibilityEvent.getPackageName().equals("com.whatsapp") || accessibilityEvent.getPackageName().equals("com.facebook.orca") || accessibilityEvent.getPackageName().equals("com.twitter.android") || accessibilityEvent.getPackageName().equals("com.facebook.katana") || accessibilityEvent.getPackageName().equals("com.facebook.lite"))))
+                showWindow = false;
+
+            if (accessibilityEvent.getEventType() == AccessibilityEvent.TYPE_VIEW_TEXT_CHANGED) {
+                writer.writeNext(new String[]{java.time.Clock.systemUTC().instant() + "", sourcePackageName, "TYPE_VIEW_TEXT_CHANGED", accessibilityEvent.getEventType() + ""});
+
+                Log.d(TAGEVENTS, "TYPE_VIEW_TEXT_CHANGED");
+                if (windowController == null)
+                    windowController = new WindowPositionController(windowManager, getApplicationContext());
+                showWindow = true;
+                windowController.notifyDatasetChanged(accessibilityEvent.getText().toString(), currntApplicationPackage);
+            }
         }
 //        } else if(accessibilityEvent.getEventType() == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED){
 //            Log.d(TAGEVENTS, "TYPE_WINDOW_STATE_CHANGED:"+accessibilityEvent.getContentDescription());
@@ -109,6 +153,7 @@ public class MyAccessibilityService extends AccessibilityService {
 //            if (windowController != null && !showWindow)
 //                windowController.onDestroy();
 //        }
+
     }
 
     @Override
@@ -133,45 +178,5 @@ public class MyAccessibilityService extends AccessibilityService {
      * @param mContext
      * @return <code>true</code> if Accessibility Service is ON, otherwise <code>false</code>
      */
-    public static boolean isAccessibilitySettingsOn(Context mContext) {
-        int accessibilityEnabled = 0;
-        //your package /   accesibility service path/class
-        final String service = "com.musacca.accessibilityservice/com.musacca.accessibilityservice.Service.MyAccessibilityService";
 
-        boolean accessibilityFound = false;
-        try {
-            accessibilityEnabled = Settings.Secure.getInt(
-                    mContext.getApplicationContext().getContentResolver(),
-                    Settings.Secure.ACCESSIBILITY_ENABLED);
-            Log.v(TAG, "accessibilityEnabled = " + accessibilityEnabled);
-        } catch (Settings.SettingNotFoundException e) {
-            Log.e(TAG, "Error finding setting, default accessibility to not found: "
-                    + e.getMessage());
-        }
-        TextUtils.SimpleStringSplitter mStringColonSplitter = new TextUtils.SimpleStringSplitter(':');
-
-        if (accessibilityEnabled == 1) {
-            Log.v(TAG, "***ACCESSIBILIY IS ENABLED*** -----------------");
-            String settingValue = Settings.Secure.getString(
-                    mContext.getApplicationContext().getContentResolver(),
-                    Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES);
-            if (settingValue != null) {
-                TextUtils.SimpleStringSplitter splitter = mStringColonSplitter;
-                splitter.setString(settingValue);
-                while (splitter.hasNext()) {
-                    String accessabilityService = splitter.next();
-
-                    Log.v(TAG, "-------------- > accessabilityService :: " + accessabilityService);
-                    if (accessabilityService.equalsIgnoreCase(service)) {
-                        Log.v(TAG, "We've found the correct setting - accessibility is switched on!");
-                        return true;
-                    }
-                }
-            }
-        } else {
-            Log.v(TAG, "***ACCESSIBILIY IS DISABLED***");
-        }
-
-        return accessibilityFound;
-    }
 }
