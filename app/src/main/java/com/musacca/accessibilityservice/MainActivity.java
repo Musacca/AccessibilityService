@@ -191,7 +191,6 @@ public class MainActivity extends AppCompatActivity {
         TextUtils.SimpleStringSplitter mStringColonSplitter = new TextUtils.SimpleStringSplitter(':');
 
         if (accessibilityEnabled == 1) {
-            Log.v(TAG, "***ACCESSIBILIY IS ENABLED*** -----------------");
             String settingValue = Settings.Secure.getString(
                     mContext.getApplicationContext().getContentResolver(),
                     Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES);
@@ -201,7 +200,6 @@ public class MainActivity extends AppCompatActivity {
                 while (splitter.hasNext()) {
                     String accessabilityService = splitter.next();
 
-                    Log.v(TAG, "-------------- > accessabilityService :: " + accessabilityService);
                     if (accessabilityService.equalsIgnoreCase(service)) {
                         Log.v(TAG, "We've found the correct setting - accessibility is switched on!");
                         return true;

@@ -8,5 +8,5 @@
     android:canRequestFingerprintGestures="true"
     android:canPerformGestures="true"
     android:canControlMagnification="true"
-
+    android:packageNames=""
     android:settingsActivity="com.example.android.accessibility.ServiceSettingsActivity" />
